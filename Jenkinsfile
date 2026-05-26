@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-               git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/abrahimcse/FullStack-Blogging-App.git'
+               git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/nickzerze/full_stack_blogging_app_DevOps.git'
             }
         }
         stage('Compile') {
@@ -64,28 +64,28 @@ pipeline {
             steps {
                script {
                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                            sh "docker build -t abrahimcse/bloggingapp:latest ."
+                            sh "docker build -t malware4/bloggingapp:latest ."
                     }
                }
             }
         }
         stage('Docker Image Scan') {
             steps {
-                sh "trivy image --format table -o trivy-image-report.html abrahimcse/bloggingapp:latest "
+                sh "trivy image --format table -o trivy-image-report.html malware4/bloggingapp:latest "
             }
         }
         stage('Push Docker Image') {
             steps {
                script {
                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                            sh "docker push abrahimcse/bloggingapp:latest"
+                            sh "docker push malware4/bloggingapp:latest"
                     }
                }
             }
         }
         stage('Deploy To Kubernetes') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'abrahimcse-cluster', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://< >.ap-southes-1.eks.amazonaws.com') {
+                withKubeConfig(caCertificate: '', clusterName: 'eks-full-stack-cluster', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://< >.ap-southes-1.eks.amazonaws.com') {
                       sh "kubectl apply -f deployment-service.yaml"
                 }
             }
@@ -93,7 +93,7 @@ pipeline {
         
         stage('Verify the Deployment') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'abrahimcse-cluster', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://< >.ap-southes-1.eks.amazonaws.com') {
+                withKubeConfig(caCertificate: '', clusterName: 'eks-full-stack-cluster', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://< >.ap-southes-1.eks.amazonaws.com') {
                         sh "kubectl get pods -n webapps"
                         sh "kubectl get svc -n webapps"
                 }
@@ -125,9 +125,9 @@ pipeline {
             emailext (
                 subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
                 body: body,
-                to: 'abrahim.ctech@gmail.com',
-                from: 'jenkins@example.com',
-                replyTo: 'jenkins@example.com',
+                to: 'nickzerze@gmail.com',
+                from: 'nickzerze@example.com',
+                replyTo: 'nickzerze@example.com',
                 mimeType: 'text/html',
                 attachmentsPattern: 'trivy-image-report.html'
             )
