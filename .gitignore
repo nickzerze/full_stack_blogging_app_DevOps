@@ -1,0 +1,9 @@
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+EKS_Terraform/.terraform/
+*.tfstate
+*.tfstate.*
+target/
+rbac/secret_for_docker*
+rbac/token_for_jenkins*
