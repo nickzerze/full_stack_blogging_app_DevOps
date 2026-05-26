@@ -30,7 +30,15 @@ pipeline {
         
         stage('File System Scan') {
             steps {
-                sh "trivy fs --format table -o trivy-fs-report.html ."
+                sh """
+                mkdir -p .trivy-cache trivy-tmp
+                TMPDIR=\$PWD/trivy-tmp trivy fs \
+                    --cache-dir .trivy-cache \
+                    --scanners vuln \
+                    --format table \
+                    -o trivy-fs-report.html \
+                    .
+                """
             }
         }
         stage('SonarQube Analsyis') {
@@ -71,7 +79,15 @@ pipeline {
         }
         stage('Docker Image Scan') {
             steps {
-                sh "trivy image --format table -o trivy-image-report.html malware4/bloggingapp:latest "
+                sh """
+                    mkdir -p .trivy-cache trivy-tmp
+                    TMPDIR=\$PWD/trivy-tmp trivy image \
+                        --cache-dir .trivy-cache \
+                        --scanners vuln \
+                        --format table \
+                        -o trivy-image-report.html \
+                        malware4/bloggingapp:latest
+                    """
             }
         }
         stage('Push Docker Image') {
