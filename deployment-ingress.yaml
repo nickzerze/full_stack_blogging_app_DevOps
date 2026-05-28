@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bloggingapp-deployment
+  namespace: webapps
+spec:
+  selector:
+    matchLabels:
+      app: bloggingapp
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: bloggingapp
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: bloggingapp
+          image: malware4/bloggingapp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bloggingapp-service
+  namespace: webapps
+spec:
+  selector:
+    app: bloggingapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bloggingapp-ingress
+  namespace: webapps
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bloggingapp-service
+                port:
+                  number: 80

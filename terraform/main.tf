@@ -19,6 +19,8 @@ resource "aws_subnet" "eks_full_stack_subnet" {
 
   tags = {
     Name = "eks-full-stack_subnet-${count.index}"
+    "kubernetes.io/cluster/eks-full-stack-cluster"="shared"
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
